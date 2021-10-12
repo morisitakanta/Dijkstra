@@ -4,14 +4,15 @@ import plotting
 
 
 class Dijkstra:
-    def __init__(self, s_start, s_goal, grid_map, grid_size, iter_max, motion_size=1):
+    def __init__(self, s_start, s_goal, grid_map, grid_size, iter_max, motion_size_x=1, motion_size_y=1):
         self.s_start = nd.Node(s_start)
         self.s_goal = nd.Node(s_goal)
         self.g_map = grid_map
         self.g_size = grid_size
         self.iter_max = iter_max
 
-        self.motion_size = motion_size
+        self.motion_size_x = motion_size_x
+        self.motion_size_y = motion_size_y
         self.motion = self.define_motion()
 
         self.plot = plotting.Plotting(s_start, s_goal)
@@ -22,12 +23,11 @@ class Dijkstra:
         node_closed.append(self.s_start)
         for i in range(self.iter_max):
             node_next = []
-            for node in node_closed: #探索済みnodeからcostが低いものを探す
+            for node in node_closed:
                if node.condition == 0:
-            #    if node.cost >= current_cost:
                    for motion in self.motion:
                        nn = self.generate_node_next(node, motion)
-                       if self.is_goal(nn, self.s_goal, self.motion_size):
+                       if self.is_goal(nn, self.s_goal, self.motion_size_x, self.motion_size_y):
                            print("goal")
                            path = self.generate_path(nn, self.s_goal)
                            self.plot.animation(node_closed, path, "Dijkstra")
@@ -55,18 +55,13 @@ class Dijkstra:
 
             for node in node_next:
                 node_closed.append(node)
-            # current_cost += self.motion_size
-            # for node in node_next:
-            #     current_cost = max(current_cost, node.cost)
-
         self.plot.animation(node_closed, [], "Dijkstra")
         return []
 
     def define_motion(self):
-        # motions = [(-self.motion_size, 0), (-self.motion_size, self.motion_size), (0, self.motion_size), (self.motion_size, self.motion_size),
-        #                 (self.motion_size, 0), (self.motion_size, -self.motion_size), (0, -self.motion_size), (-self.motion_size, -self.motion_size)]
-        motions = [(-self.motion_size, 0), (self.motion_size, 0), (0, self.motion_size), (0, -self.motion_size),
-                        (self.motion_size, self.motion_size), (-self.motion_size, -self.motion_size), (self.motion_size, -self.motion_size), (-self.motion_size, self.motion_size)]
+        motions = [(-self.motion_size_x, 0), (self.motion_size_x, 0), (0, self.motion_size_y), (0, -self.motion_size_y),
+                        (self.motion_size_x, self.motion_size_y), (-self.motion_size_x, -self.motion_size_y), (self.motion_size_x, -self.motion_size_y), (-self.motion_size_x, self.motion_size_y)]
+        print(motions)
         return motions
 
     def generate_node_next(self, node, motion):
@@ -78,8 +73,8 @@ class Dijkstra:
     def cost(self, node, motion):
         return node.cost + math.hypot(motion[0], motion[1])
 
-    def is_goal(self, node, goal, motion_size):
-        if node.x >= goal.x-motion_size and node.x <= goal.x+motion_size and node.y >= goal.y - motion_size and node.y <= goal.y+motion_size:
+    def is_goal(self, node, goal, motion_size_x, motion_size_y):
+        if node.x >= goal.x-motion_size_x and node.x <= goal.x+motion_size_x and node.y >= goal.y - motion_size_y and node.y <= goal.y+motion_size_y:
             return True
         return False
 
