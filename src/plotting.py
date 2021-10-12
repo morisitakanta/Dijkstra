@@ -23,7 +23,7 @@ class Plotting:
         self.plot_path(path)
 
     def animation_realtime(self, nodelist, name, count):
-        self.plot_grid("RRT realtime.ver", self.obs_bound, self.obs_rectangle, self.obs_circle, self.xI, self.xG, count)
+        self.plot_grid("Dijkstra realtime.ver", self.obs_bound, self.obs_rectangle, self.obs_circle, self.xI, self.xG, count)
         self.plot_nodes(nodelist, False)
         self.graph_draw()
 
