@@ -38,6 +38,7 @@ class Env:
         ]
 
         return test
+        # return obs_rectangle
 
     @staticmethod
     def obs_circle():
@@ -52,3 +53,4 @@ class Env:
         test = []
 
         return test
+        # return obs_cir

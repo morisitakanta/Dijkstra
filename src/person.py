@@ -1,15 +1,12 @@
 import random
 
 class Person:
-    def __init__(self, x_start, theta_start, v_start, g_map):
+    def __init__(self, x_start=(4,4), first_check_point_num=0):
         self.x_start = x_start
-        self.theta_start = theta_start
-        self.v_start = v_start
-        self.g_map = g_map
         self.rand_flag = True
         self.check_points, self.connection = self.define_check_points(self.rand_flag)
-        self.check_point_num = 0
-        self.check_point_num_passed = 0
+        self.check_point_num = first_check_point_num
+        self.check_point_num_passed = first_check_point_num
 
         self.current_position = self.x_start
         self.motion_control = True
@@ -18,7 +15,7 @@ class Person:
 
     def define_check_points(self, rand_flag=False):
         if rand_flag:
-            check_points = [(4,4), (27,4), (47, 4), (4,16), (27,16), (47,16), (4,28), (27,28), (47,28)]
+            check_points = [(4,4), (25,4), (47, 4), (4,16), (25,16), (47,16), (4,28), (25,28), (47,28)]
             connection = [(1,3), (0,2,4), (1,5), (0,4,6), (1,3,5,7), (2,4,8), (3,7), (4,6,8), (5,7)]
         else:
             check_points = [(4, 16), (28, 16), (28, 3), (47, 5), (44, 27), (4, 27), self.x_start]
@@ -33,7 +30,7 @@ class Person:
             self.current_position = next_position
             self.check_point_num, self.check_point_num_passed = self.update_check_point(self.check_points, self.check_point_num, self.current_position, self.connection, self.check_point_num_passed)
             self.create_path(self.current_position)
-        return
+        return self.current_position
 
     def select_check_point(self, check_points, check_point_num):
         check_point = check_points[check_point_num]
@@ -59,7 +56,7 @@ class Person:
                 check_point_num_rand = check_point_num_passed
                 while check_point_num_rand == check_point_num_passed:
                     check_point_num_rand = random.choice(connection[check_point_num])
-                print(check_point_num, "->", check_point_num_rand)
+                # print(check_point_num, "->", check_point_num_rand)
                 return check_point_num_rand, check_point_num 
             return check_point_num, check_point_num_passed
         if self.rand_flag == False:
