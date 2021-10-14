@@ -99,11 +99,12 @@ class Plotting:
             plt.show()
 
     def plot_paths(self, paths):
-        color = [':r', ':g']
+        color = ['r', 'g']
         color_num = 0
         for path in paths:
             if len(path) != 0:
-                plt.plot([x[0] for x in path], [x[1] for x in path], color[color_num], linewidth=2, alpha=0.5)
+                plt.plot([x[0] for x in path], [x[1] for x in path], ':'+color[color_num], linewidth=2, alpha=0.5)
+                plt.plot(path[len(path)-1][0], path[len(path)-1][1], marker = "o", color = color[color_num],  markersize = 4)
                 if color_num+1 < len(color):
                     color_num += 1
                 # plt.pause(0.01)

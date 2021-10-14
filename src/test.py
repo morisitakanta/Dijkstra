@@ -6,19 +6,18 @@ def main():
     print("test")
     # x_start = (4, 4)
     x_start = (25, 16)
-    x_goal = (47, 25)
 
     plot = plotting.Plotting()
 
-    person = [per.Person(x_start, 4), per.Person()]
-    # person2 = per.Person(x_start)
+    person = [per.Person(), per.Person((4,15), 3)]
     person_position = x_start
-    paths = []
+    person_paths = []
 
-    robot = [rbt.robot(x_start, 4), rbt.robot()]
+    robot = [rbt.Robot(x_start, 4)]
 
-    for i in range(100):
-        simulated_person_and_robot_process(person, robot, paths, plot)
+    for i in range(400):
+        simulated_person_and_robot_process(person, robot, person_paths, plot)
+        plot.animation_robot_and_person(person_paths, robot)
 
 
 def simulated_person_and_robot_process(person, robot, paths, plot):
@@ -29,7 +28,6 @@ def simulated_person_and_robot_process(person, robot, paths, plot):
         paths.append(p.path)
     for r in robot:
         r.process(person_position)
-    plot.animation_robot_and_person(paths, robot)
 
 
 if __name__ =='__main__':
