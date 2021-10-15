@@ -1,16 +1,19 @@
 import random
+from math import hypot
 
 class Person:
     def __init__(self, x_start=(4,4), first_check_point_num=0):
-        self.x_start = x_start
+        # self.x_start = x_start
         self.rand_flag = True
         self.check_points, self.connection = self.define_check_points(self.rand_flag)
+        self.x_start = self.check_points[first_check_point_num]
         self.check_point_num = first_check_point_num
         self.check_point_num_passed = first_check_point_num
 
         self.current_position = self.x_start
         self.motion_control = True
         self.path = [self.x_start]
+        self.person_velocity = float(random.choice(range(2, 11, 2)))/10.0
 
 
     def define_check_points(self, rand_flag=False):
@@ -40,11 +43,12 @@ class Person:
         diff = (check_point[0]-current_position[0], check_point[1]-current_position[1])
         motion_x = 0
         motion_y = 0
+        dist = hypot(diff[0], diff[1])
         if(diff[0] != 0):
-            motion_x = int(diff[0]/abs(diff[0]))
+            motion_x = diff[0]/dist
         if(diff[1] != 0):
-            motion_y = int(diff[1]/abs(diff[1]))
-        return (motion_x, motion_y)
+            motion_y = diff[1]/dist
+        return (motion_x*self.person_velocity, motion_y*self.person_velocity)
         
     def update_current_position(self, current_position, motion):
         next_position = (current_position[0]+motion[0], current_position[1]+motion[1])
@@ -52,15 +56,16 @@ class Person:
 
     def update_check_point(self, check_points, check_point_num, current_position, connection, check_point_num_passed):
         if self.rand_flag == True:
-            if check_points[check_point_num][0]==current_position[0] and check_points[check_point_num][1]==current_position[1]:
+            if hypot(check_points[check_point_num][0]-current_position[0], check_points[check_point_num][1]-current_position[1])<self.person_velocity:
+                self.current_position = self.update_current_position(current_position, (check_points[check_point_num][0]-current_position[0], check_points[check_point_num][1]-current_position[1]))
                 check_point_num_rand = check_point_num_passed
                 while check_point_num_rand == check_point_num_passed:
                     check_point_num_rand = random.choice(connection[check_point_num])
-                # print(check_point_num, "->", check_point_num_rand)
                 return check_point_num_rand, check_point_num 
             return check_point_num, check_point_num_passed
         if self.rand_flag == False:
-            if check_points[check_point_num][0]==current_position[0] and check_points[check_point_num][1]==current_position[1]:
+            if hypot(check_points[check_point_num][0]-current_position[0], check_points[check_point_num][1]-current_position[1])<self.person_velocity:
+                self.current_position = self.update_current_position(current_position, (check_points[check_point_num][0]-current_position[0], check_points[check_point_num][1]-current_position[1]))
                 if check_point_num == len(check_points)-1:
                     self.motion_control = False
                     return check_point_num, 0

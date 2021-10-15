@@ -1,19 +1,18 @@
 from math import hypot
 import random
-import time
 
-from matplotlib.pyplot import pink
 
 class Robot:
     def __init__(self, x_start=(4,4), first_check_point_num=0):
-        self.x_start = x_start
-        self.check_point_num = first_check_point_num
-        self.check_point_num_passed = first_check_point_num
-
-        self.sensor_range = 5.0
-        self.robot_velocity = 0.5 # 1 or 0.5
+        # self.x_start = x_start
         self.enable_random_walk = True
         self.check_points, self.connection = self.define_check_points(self.enable_random_walk)
+        self.check_point_num = first_check_point_num
+        self.check_point_num_passed = first_check_point_num
+        self.x_start = self.check_points[first_check_point_num]
+
+        self.sensor_range = 5.0
+        self.robot_velocity = 0.3 # 0.0 ~ 1.0
 
         self.current_position = self.x_start
         self.motion_control = True
@@ -34,8 +33,8 @@ class Robot:
     def process(self, person_position):
         self.update_robot_position()
         person_inside = self.person_is_inside_sensor_range(person_position, self.current_position)
-        self.person_list_manager(self.person_list, person_inside)
-        # print(self.person_list)
+        # self.person_list_manager(self.person_list, person_inside)
+        return person_inside
             
 
     def update_robot_position(self):
@@ -45,7 +44,6 @@ class Robot:
             next_position = self.update_current_position(self.current_position, motion)
             self.current_position = next_position
             self.check_point_num, self.check_point_num_passed = self.update_check_point(self.check_points, self.check_point_num, self.current_position, self.connection, self.check_point_num_passed)
-            # self.create_path(self.current_position)
 
     def select_check_point(self, check_points, check_point_num):
         check_point = check_points[check_point_num]
@@ -55,10 +53,11 @@ class Robot:
         diff = (check_point[0]-current_position[0], check_point[1]-current_position[1])
         motion_x = 0
         motion_y = 0
+        dist = hypot(diff[0], diff[1])
         if(diff[0] != 0):
-            motion_x = diff[0]/hypot(diff[0],diff[1])
+            motion_x = diff[0]/dist
         if(diff[1] != 0):
-            motion_y = diff[1]/hypot(diff[0],diff[1])
+            motion_y = diff[1]/dist
         return (motion_x*self.robot_velocity, motion_y*self.robot_velocity)
         
     def update_current_position(self, current_position, motion):
@@ -67,8 +66,8 @@ class Robot:
 
     def update_check_point(self, check_points, check_point_num, current_position, connection, check_point_num_passed):
         if self.enable_random_walk == True:
-            if check_points[check_point_num][0]-current_position[0]==0 and check_points[check_point_num][1]-current_position[1]==0:
-            # if check_points[check_point_num][0]-current_position[0]<=(1-self.robot_velocity) and check_points[check_point_num][1]-current_position[1]<=(1-self.robot_velocity):
+            if hypot(check_points[check_point_num][0]-current_position[0], check_points[check_point_num][1]-current_position[1])<self.robot_velocity:
+                self.current_position = self.update_current_position(current_position, (check_points[check_point_num][0]-current_position[0], check_points[check_point_num][1]-current_position[1]))
                 check_point_num_rand = check_point_num_passed
                 while check_point_num_rand == check_point_num_passed:
                     check_point_num_rand = random.choice(connection[check_point_num])
@@ -76,7 +75,8 @@ class Robot:
             return check_point_num, check_point_num_passed
 
         if self.enable_random_walk == False:
-            if check_points[check_point_num][0]==current_position[0] and check_points[check_point_num][1]==current_position[1]:
+            if hypot(check_points[check_point_num][0]-current_position[0], check_points[check_point_num][1]-current_position[1])<self.robot_velocity:
+                self.current_position = self.update_current_position(current_position, (check_points[check_point_num][0]-current_position[0], check_points[check_point_num][1]-current_position[1]))
                 if check_point_num == len(check_points)-1:
                     self.motion_control = False
                     return check_point_num, 0
@@ -96,34 +96,3 @@ class Robot:
                 person_inside_num_position.append([person_num, pp, None, None])
             person_num += 1
         return person_inside_num_position
-
-    def calc_person_velocity(self, current_position, past_position):
-        velocity = (current_position[0]-past_position[0], current_position[1]-past_position[1])
-        return velocity
-        
-    def person_list_manager(self, person_list, person_inside):
-        for p_inside in person_inside:
-            is_already_listed = False
-            for p_listed in person_list:
-                if p_inside[0] == p_listed[0]:
-                    is_already_listed = True
-                    if p_listed[3] ==True:
-                        velocity = self.calc_person_velocity(p_inside[1], p_listed[1])
-                        p_listed[2] = velocity
-                    else:
-                        p_listed[2] = None
-                    p_listed[1] = p_inside[1]
-                    break
-            if is_already_listed == False:
-                person_list.append(p_inside)
-                
-        for p_listed in person_list:
-            is_observed = False
-            for p_inside in person_inside:
-                if p_listed[0] == p_inside[0]:
-                    is_observed = True
-                    p_listed[3] = True
-            if is_observed == False:
-                p_listed[3] = False
-
-                time.sleep(0)
