@@ -10,6 +10,7 @@ class Env:
         self.obs_boundary = self.obs_boundary()
         self.obs_circle = self.obs_circle()
         self.obs_rectangle = self.obs_rectangle()
+        self.check_points, self.connection = self.test_check_points()
 
     @staticmethod
     def obs_boundary():
@@ -54,3 +55,9 @@ class Env:
 
         return test
         # return obs_cir
+
+    @staticmethod
+    def test_check_points():
+        check_points = [(4,4), (25,4), (47, 4), (4,16), (25,16), (47,16), (4,28), (25,28), (47,28)]
+        connection = [(1,3), (0,2,4), (1,5), (0,4,6), (1,3,5,7), (2,4,8), (3,7), (4,6,8), (5,7)]
+        return check_points, connection

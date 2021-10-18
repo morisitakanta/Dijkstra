@@ -1,19 +1,21 @@
 import random
 from math import hypot
+from time import time
 
 class Person:
-    def __init__(self, x_start=(4,4), first_check_point_num=0):
+    def __init__(self, x_start=(4,4), first_check_point_num=0, time_step=1.0):
         # self.x_start = x_start
         self.rand_flag = True
         self.check_points, self.connection = self.define_check_points(self.rand_flag)
         self.x_start = self.check_points[first_check_point_num]
         self.check_point_num = first_check_point_num
         self.check_point_num_passed = first_check_point_num
+        self.time_step = time_step
 
         self.current_position = self.x_start
         self.motion_control = True
         self.path = [self.x_start]
-        self.person_velocity = float(random.choice(range(2, 11, 2)))/10.0
+        self.person_velocity = random.choice([0.2, 0.4, 0.6, 0.8, 1.0]) * self.time_step
 
 
     def define_check_points(self, rand_flag=False):

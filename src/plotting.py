@@ -19,6 +19,7 @@ class Plotting:
         self.init_flag = True
         self.delay_time = 0.001
         self.color = ['r', 'g', 'b', 'c', 'm', 'y', 'k']
+        self.line = ['', ':']
 
     def animation(self, nodelist, path, name, animation=False):
         self.plot_grid(name, self.obs_bound, self.obs_rectangle, self.obs_circle, self.xI, self.xG, 0)
@@ -40,12 +41,28 @@ class Plotting:
         self.plot_robot(robots)
         self.graph_draw()
 
-    def animation_robot_and_person(self, paths, robots, person_list):
+    def animation_robot_and_person(self, person_paths, robots, person_list):
         self.plot_grid("robot & person random walk", self.obs_bound, self.obs_rectangle, self.obs_circle, self.xI, self.xG, True)
-        self.plot_paths(paths)
+        self.plot_paths(person_paths, line=1)
         self.plot_robot(robots)
         self.plot_observed_person(person_list)
         self.graph_draw()
+
+    def animation_data_for_estimation(self, robots, person_list):
+        self.plot_grid("data for estimation", self.obs_bound, self.obs_rectangle, self.obs_circle, self.xI, self.xG, True)
+        self.plot_robot(robots)
+        self.plot_observed_person(person_list)
+        self.graph_draw()
+
+    def animation_estimated_paths(self, robots, person_list, estimated_paths, person_paths):
+        self.plot_grid("data for estimation", self.obs_bound, self.obs_rectangle, self.obs_circle, self.xI, self.xG, True)
+        self.plot_paths(person_paths, line=1)
+        self.plot_robot(robots)
+        self.plot_observed_person(person_list)
+        self.plot_estimated_paths(estimated_paths, line=0)
+        self.graph_draw()
+        if len(estimated_paths)>0:
+            plt.pause(3)
 
     def plot_grid(self, name, obs_bound, obs_rectangle, obs_circle, xI, xG, person=False):
         if self.init_flag == True:
@@ -100,26 +117,24 @@ class Plotting:
         if animation:
             plt.show()
 
-    def plot_paths(self, paths):
-
-        path_max_len = math.inf
+    def plot_paths(self, paths, line=0):
         person_num = 0
         for path in paths:
             if len(path) != 0:
-                if len(path) > path_max_len:
-                    del path[:len(path)-path_max_len]
-                    plt.plot([x[0] for x in path], [x[1] for x in path], ':'+self.color[min(person_num, 6)], linewidth=2, alpha=0.5)
-                    plt.plot(path[len(path)-1][0], path[len(path)-1][1], marker = "o", color = self.color[min(person_num, 6)],  markersize = 4)
-                    plt.annotate('person'+str(person_num), (path[len(path)-1][0], path[len(path)-1][1]))
-                else:
-                    plt.plot([x[0] for x in path], [x[1] for x in path], ':'+self.color[min(person_num, 6)], linewidth=2, alpha=0.5)
-                    plt.plot(path[len(path)-1][0], path[len(path)-1][1], marker = "o", color = self.color[min(person_num, 6)],  markersize = 4)
-                    plt.annotate('person'+str(person_num), (path[len(path)-1][0], path[len(path)-1][1]))
-
-                plt.gcf().canvas.mpl_connect('key_release_event',
-                                                lambda event:
-                                                [exit(0) if event.key == 'escape' else None])
+                plt.plot([x[0] for x in path], [x[1] for x in path], self.line[line]+self.color[min(person_num, 6)], linewidth=2, alpha=0.5)
+                plt.plot(path[len(path)-1][0], path[len(path)-1][1], marker = "o", color = self.color[min(person_num, 6)],  markersize = 4)
+                plt.annotate('person'+str(person_num), (path[len(path)-1][0], path[len(path)-1][1]))
+                plt.gcf().canvas.mpl_connect('key_release_event', lambda event: [exit(0) if event.key == 'escape' else None])
             person_num += 1
+
+    def plot_estimated_paths(self, paths, line=0):
+        for path in paths:
+            person_num  = paths[0]
+            if len(path[1]) != 0:
+                plt.plot([x[0] for x in path[1]], [x[1] for x in path[1]], self.line[line]+self.color[min(path[0], 6)], linewidth=2, alpha=0.5)
+                # plt.plot(path[len(path)-1][0], path[len(path)-1][1], marker = "o", color = self.color[min(person_num, 6)],  markersize = 4)
+                # plt.annotate('person'+str(person_num), (path[len(path)-1][0], path[len(path)-1][1]))
+                plt.gcf().canvas.mpl_connect('key_release_event', lambda event: [exit(0) if event.key == 'escape' else None])
 
     def plot_nodes(self, nodelist, animation):
         if animation == True:
@@ -129,17 +144,13 @@ class Plotting:
                 count += 1
                 if node.parent != None:
                     plt.plot(node.x, node.y, marker = "o", color = "r", markersize = 2)
-                    plt.gcf().canvas.mpl_connect('key_release_event',
-                                                 lambda event:
-                                                 [exit(0) if event.key == 'escape' else None])
+                    plt.gcf().canvas.mpl_connect('key_release_event', lambda event: [exit(0) if event.key == 'escape' else None])
                     if count % 10 == 0:
                         plt.pause(0.001)
         else :
             for node in nodelist:
                 plt.plot(node.x, node.y, marker = "o", color = "r", markersize = 2)
-                plt.gcf().canvas.mpl_connect('key_release_event',
-                                                lambda event:
-                                                [exit(0) if event.key == 'escape' else None])
+                plt.gcf().canvas.mpl_connect('key_release_event', lambda event: [exit(0) if event.key == 'escape' else None])
         
     def plot_robot(self, robots):
         robot_size = 8
@@ -147,19 +158,21 @@ class Plotting:
         robot_alpha = 0.7
         for robot in robots:
             plt.plot(robot.current_position[0], robot.current_position[1], marker="o", color=robot_color, markersize=robot_size, alpha=robot_alpha)
+            plt.gcf().canvas.mpl_connect('key_release_event', lambda event: [exit(0) if event.key == 'escape' else None])
 
     def plot_observed_person(self, person_list):
         for person in person_list:
-            plt.plot(person[1][0], person[1][1], marker="*", color=self.color[person[0]], markersize=10)
+            plt.plot(person[1][0], person[1][1], marker="*", color=self.color[min(person[0],len(self.color)-1)], markersize=10)
             plt.annotate(str(person[0]), (person[1][0], person[1][1]))
             if person[2] != None:
                 self.plot_arrow(person[1], person[2])
             # plt.annotate('person'+str(person_num), (path[len(path)-1][0], path[len(path)-1][1]))
 
     def plot_arrow(self, x_root, velocity):
-        x = [x_root[0], x_root[0]+velocity[0]]
-        y = [x_root[1], x_root[1]+velocity[1]]
-        plt.plot(x, y, 'k', linewidth=1)
+        if velocity != None and math.hypot(velocity[0], velocity[1])<=1.0:
+            x = [x_root[0], x_root[0]+velocity[0]]
+            y = [x_root[1], x_root[1]+velocity[1]]
+            plt.plot(x, y, 'k', linewidth=1)
 
     def graph_reset(self):
         plt.cla()

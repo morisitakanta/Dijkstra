@@ -1,18 +1,21 @@
 from math import hypot
 import random
+import env
 
 
 class Robot:
-    def __init__(self, x_start=(4,4), first_check_point_num=0):
+    def __init__(self, x_start=(4,4), first_check_point_num=0, time_step = 1.0):
         # self.x_start = x_start
+        self.env = env.Env()
         self.enable_random_walk = True
         self.check_points, self.connection = self.define_check_points(self.enable_random_walk)
         self.check_point_num = first_check_point_num
         self.check_point_num_passed = first_check_point_num
         self.x_start = self.check_points[first_check_point_num]
+        self.time_step = time_step
 
-        self.sensor_range = 5.0
-        self.robot_velocity = 0.3 # 0.0 ~ 1.0
+        self.sensor_range = 7.0
+        self.robot_velocity = 0.3 * self.time_step # 0.0 ~ 1.0
 
         self.current_position = self.x_start
         self.motion_control = True
@@ -20,8 +23,8 @@ class Robot:
 
     def define_check_points(self, enable_random_walk=False):
         if enable_random_walk:
-            check_points = [(4,4), (25,4), (47, 4), (4,16), (25,16), (47,16), (4,28), (25,28), (47,28)]
-            connection = [(1,3), (0,2,4), (1,5), (0,4,6), (1,3,5,7), (2,4,8), (3,7), (4,6,8), (5,7)]
+            check_points = self.env.check_points
+            connection = self.env.connection
         else:
             check_points = [(4, 16), (28, 16), (28, 3), (47, 5), (44, 27), (4, 27)]
             connection = []

@@ -14,8 +14,9 @@ def main():
     g_map = grid.GridMap(1)
     grid_map = g_map.create_grid_map()
 
-    dijkstra = di.Dijkstra(x_start, x_goal, grid_map, grid_size, iter_max, motion_size_x, motion_size_y)
-    path = dijkstra.planning()
+    dijkstra = di.Dijkstra(grid_map, grid_size, iter_max, motion_size_x, motion_size_y)
+    path = dijkstra.planning(x_start, x_goal)
+    # path = dijkstra.planning(x_goal, (47, 5))
 
 
 if __name__ =='__main__':
