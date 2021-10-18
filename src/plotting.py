@@ -21,7 +21,7 @@ class Plotting:
         self.color = ['r', 'g', 'b', 'c', 'm', 'y', 'k']
         self.line = ['', ':']
 
-    def animation(self, nodelist, path, name, animation=False):
+    def animation(self, nodelist, path=[], name="", animation=False):
         self.plot_grid(name, self.obs_bound, self.obs_rectangle, self.obs_circle, self.xI, self.xG, 0)
         self.plot_nodes(nodelist, animation)
         self.plot_path(path)

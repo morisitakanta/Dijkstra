@@ -17,7 +17,7 @@ class SimManager:
         self.sim_real_time = real_time_simulate
 
         self.g_map = grid.GridMap(1)
-        self.grid_map = self.g_map.create_grid_map()
+        self.grid_map = self.g_map.create_reduced_grid_map()
         self.plot = plotting.Plotting()
         self.dijkstra = di.Dijkstra(self.grid_map, 1, 100, 1, 1)
         self.estimated_paths = []
